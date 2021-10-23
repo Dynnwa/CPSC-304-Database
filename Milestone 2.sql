@@ -86,19 +86,19 @@ create table bike_garage
         primary key(garageId),
         foreign key(name) references junction
     );
-insert into hosts_a values (
+insert into bike_garage values (
     'Joyce', 'JoyceBike', '25'
 );
-insert into hosts_a values (
+insert into bike_garage values (
     'Main Street', 'MainStreetBike', '30'
 );
-insert into hosts_a values (
+insert into bike_garage values (
     'KingGeorge', 'KingGeorgeBike', '40'
 );
-insert into hosts_a values (
+insert into bike_garage values (
     'Bridgeport', 'BridgeportBike', '20'
 );
-insert into hosts_a values (
+insert into bike_garage values (
     'Commercial', 'CommercialBike', '50'
 );
 
