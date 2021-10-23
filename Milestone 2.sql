@@ -6,35 +6,37 @@ create table junction
     (
         name char(20) not null,
         location char(20) not null,
+        isSkytrain char(1) not null,
         garageId char(5) unique,
         primary key(name),
         foreign key (garageId) references bike_garage
     );
 
 insert into junction value (
-'Waterfront' , 'Vancouver', 'NULL'
+'Waterfront' , 'Vancouver','1', 'WaterfrontBike'
 );
 insert into junction value (
-'Joyce' , 'Vancouver', 'JoyceBike'
+'Joyce' , 'Vancouver','1', 'JoyceBike'
 );
 insert into junction value (
-'Main Street' , 'Vancouver', 'MainStreetBike'
+'Main Street' , 'Vancouver','1', 'MainStreetBike'
 );
 insert into junction value (
-'Brighouse' , 'Richmond', 'NULL'
+'Marpole' , 'Vancouver', '0', 'NULL'
 );
 insert into junction value (
-'KingGeorge' , 'Surrey', 'KingGeorgeBike'
+'KingGeorge' , 'Surrey','1', 'KingGeorgeBike'
 );
 
 drop table bus_loop;
 create table bus_loop
     (
         name char(20) not null,
-        num_bus int not null,
+        num_bus int,
         primary key(name),
         foreign key (name) references junction ON DELETE CASCADE
     );
+
 insert into bus_loop value (
 'KingGeorge' , '4'
 );
@@ -51,60 +53,34 @@ insert into bus_loop value (
 'Marpole' , '10'
 );
 
-drop table skytrain;
-create table skytrain
+drop table sky_train;
+create table sky_train
     (
         name char(20) not null,
-        isSkytrain char(1) not null,
+        -- isSkytrain char(1) not null,
         primary key(name),
         foreign key (name) references junction ON DELETE CASCADE
     );
-insert into bus_loop value (
-'Marpole' , '0'
+insert into sky_train value (
+'Metrotown'
 );
-insert into bus_loop value (
-'Waterfront' , '1'
+insert into sky_train value (
+'Waterfront'
 );
-insert into bus_loop value (
-'Scotsdale' , '0'
+insert into sky_train value (
+'King George'
 );
-insert into bus_loop value (
-'Joyce' , '1'
+insert into sky_train value (
+'Joyce'
 );
-insert into bus_loop value (
-'Brighouse' , '1'
-);
-
-
-drop table hosts_a;          ------------------------ Relationship 
-create table hosts_a
-    (
-        name char(20) not null,
-        garageId char(5) not null,
-        primary key(name, garageId),
-        foreign key (name) references skytrain ON DELETE CASCADE,
-        foreign key (garageId) references bike_garage ON DELETE CASCADE
-    );
-insert into hosts_a values (
-    'Joyce', 'JoyceBike'
-);
-insert into hosts_a values (
-    'Main Street', 'MainStreetBike'
-);
-insert into hosts_a values (
-    'KingGeorge', 'KingGeorgeBike'
-);
-insert into hosts_a values (
-    'Bridgeport', 'BridgeportBike'
-);
-insert into hosts_a values (
-    'Commercial', 'CommercialBike'
+insert into sky_train value (
+'Brighouse'
 );
 
 drop table bike_garage;
 create table bike_garage
     (
-        name char(20) not null unique,
+        name char(20) not null,
         garageId char(5) not null,
         num_bikes int not null,
         primary key(garageId),
@@ -157,7 +133,7 @@ create table stopp
         name char(20) not null,
         stopId char(5) not null,
         location char(20) not null,
-        direction char(5) not null,
+        direction char(5),
         primary key(stopId),
         foreign key(name) references junction ON DELETE CASCADE
     );
@@ -236,7 +212,7 @@ create table vehicle
         routeId char(5),
         status char(20) not null,
         current_location char(20) not null,
-        numPassengers int not null,
+        numPassengers int,
         primary key(serialNumber),
         foreign key (name) references junction ON DELETE SET NULL,
         foreign key(routeID) references routee
@@ -248,7 +224,7 @@ insert into vehicle values (
     'UBC', 'v2', '2', 'Running', 'Vancouver', 30
 );
 insert into vehicle values (
-    'Metrotown', 'v3', '3', 'Broken', 'Burnaby', 30
+    'Metrotown', 'v3', 'NULL', 'Broken', 'Burnaby', 'NULL'
 );
 insert into vehicle values (
     'Metrotown', 'v4', '4', 'Running', 'Burnaby', 30
@@ -262,7 +238,6 @@ create table bus
     (
         serialNumber char(20) not null,
         employeeID char(20) not null,
-        --type char(20) not null,   ---------------
         primary key(serialNumber),
         foreign key(serialNumber) references vehicle,
         foreign key(employeeID) references driver
