@@ -4,11 +4,11 @@
 drop table junction;
 create table junction
     (
-        name char(20) not null,
+        junctionName char(20) not null,
         location char(20) not null,
         isSkytrain char(1) not null,
         garageId char(5) unique,
-        primary key(name),
+        primary key(junctionName),
         foreign key (garageId) references bike_garage
     );
 
@@ -31,10 +31,10 @@ insert into junction value (
 drop table bus_loop;
 create table bus_loop
     (
-        name char(20) not null,
+        junctionName char(20) not null,
         num_bus int,
-        primary key(name),
-        foreign key (name) references junction ON DELETE CASCADE
+        primary key(junctionName),
+        foreign key (junctionName) references junction ON DELETE CASCADE
     );
 
 insert into bus_loop value (
@@ -56,10 +56,9 @@ insert into bus_loop value (
 drop table sky_train;
 create table sky_train
     (
-        name char(20) not null,
-        -- isSkytrain char(1) not null,
-        primary key(name),
-        foreign key (name) references junction ON DELETE CASCADE
+        junctionName char(20) not null,
+        primary key(junctionName),
+        foreign key (junctionName) references junction ON DELETE CASCADE
     );
 insert into sky_train value (
 'Metrotown'
@@ -80,35 +79,35 @@ insert into sky_train value (
 drop table bike_garage;
 create table bike_garage
     (
-        name char(20) not null,
+        junctionName char(20) not null,
         garageId char(5) not null,
         num_bikes int not null,
         primary key(garageId),
-        foreign key(name) references junction
+        foreign key(junctionName) references junction
     );
-insert into bike_garage values (
+insert into hosts_a values (
     'Joyce', 'JoyceBike', '25'
 );
-insert into bike_garage values (
+insert into hosts_a values (
     'Main Street', 'MainStreetBike', '30'
 );
-insert into bike_garage values (
+insert into hosts_a values (
     'KingGeorge', 'KingGeorgeBike', '40'
 );
-insert into bike_garage values (
+insert into hosts_a values (
     'Bridgeport', 'BridgeportBike', '20'
 );
-insert into bike_garage values (
+insert into hosts_a values (
     'Commercial', 'CommercialBike', '50'
 );
 
 drop table customer;
 create table customer
     (
-        compass char(20) not null unique,
-        compassName char(20) not null,
-        stopId char(5) not null,
-        primary key(compass),
+        customerID char(20) not null unique,
+        customerName char(20) not null,
+        stopId char(5),
+        primary key(customerID),
         foreign key(stopID) references stopp
     );
 insert into customer values (
@@ -130,12 +129,12 @@ insert into customer values (
 drop table stopp;
 create table stopp
     (
-        name char(20) not null,
+        junctionName char(20),
         stopId char(5) not null,
         location char(20) not null,
         direction char(5),
         primary key(stopId),
-        foreign key(name) references junction ON DELETE CASCADE
+        foreign key(junctionName) references junction ON DELETE CASCADE
     );
 insert into stopp values (
     'Joyce', '79', 'Vancouver', 'West'
@@ -207,14 +206,14 @@ insert into routee values (
 drop table vehicle;
 create table vehicle
     (
-        name char(20) not null,
+        junctionName char(20) not null,
         serialNumber char(20) not null,
         routeId char(5),
         status char(20) not null,
         current_location char(20) not null,
         numPassengers int,
         primary key(serialNumber),
-        foreign key (name) references junction ON DELETE SET NULL,
+        foreign key (junctionName) references junction ON DELETE SET NULL,
         foreign key(routeID) references routee
     );
 insert into vehicle values (
@@ -238,24 +237,25 @@ create table bus
     (
         serialNumber char(20) not null,
         employeeID char(20) not null,
+        type char(20) not null,
         primary key(serialNumber),
         foreign key(serialNumber) references vehicle,
         foreign key(employeeID) references driver
     );
 insert into bus values (
-    'v1', 'e4'
+    'v1', 'e4', 'Rapid'
 );
 insert into bus values (
-    'v2', 'e8'
+    'v2', 'e8', 'Express'
 );
 insert into bus values (
-    'v3', 'e99'
+    'v3', 'e99', 'Regular'
 );
 insert into bus values (
-    'v4', 'e34'
+    'v4', 'e34', 'Regular'
 );
 insert into bus values (
-    'v5', 'e0'
+    'v5', 'e0', 'Regular'
 );
 
 drop table skytrain;
@@ -286,8 +286,8 @@ drop table driver;
 create table driver
     (
         employeeID char(20) not null,
-        driverName char(20) not null,   ------ WTF IS LID  
-        serialNumber char(20) not null,
+        driverName char(20) not null,
+        serialNumber char(20),
         primary key(employeeID),
         foreign key(serialNumber) references bus
     );
