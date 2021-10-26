@@ -1,141 +1,240 @@
--- Milestone 2 parts 6 and 7
-
--- step 6 DDL creating tables,
 drop table junction;
+drop table bus_loop;
+drop table sky_train;
+drop table bike_garage;
+drop table customer;
+drop table stopp;
+drop table contains;
+drop table route1;
+drop table route2;
+drop table vehicle;
+drop table bus1;
+drop table bus2;
+drop table skytrain;
+drop table driver;
+
+create table bike_garage
+    (junctionName varchar(50) not null,
+    garageId varchar2(50) not null,
+    num_bikes int not null,
+    primary key(garageId),
+    foreign key(junctionName) references junction
+    );
+grant select on bike_garage to public;
+
 create table junction
     (
-        junctionName char(20) not null,
-        location char(20) not null,
-        isSkytrain char(1) not null,
-        garageId char(5) unique,
+        junctionName varchar(50) not null,
+        location varchar(50) not null,
+        isSkytrain varchar(50) not null,
+        garageId varchar(20) unique,
         primary key(junctionName),
         foreign key (garageId) references bike_garage
     );
+grant select on junction to public;
 
-insert into junction value (
-'Waterfront' , 'Vancouver','1', 'WaterfrontBike'
-);
-insert into junction value (
-'Joyce' , 'Vancouver','1', 'JoyceBike'
-);
-insert into junction value (
-'Main Street' , 'Vancouver','1', 'MainStreetBike'
-);
-insert into junction value (
-'Marpole' , 'Vancouver', '0', 'NULL'
-);
-insert into junction value (
-'KingGeorge' , 'Surrey','1', 'KingGeorgeBike'
-);
 
-drop table bus_loop;
 create table bus_loop
     (
         junctionName char(20) not null,
-        num_bus int,
+        num_bus int not null,
         primary key(junctionName),
         foreign key (junctionName) references junction ON DELETE CASCADE
     );
+grant select on bus_loop to public;
 
-insert into bus_loop value (
-'KingGeorge' , '4'
-);
-insert into bus_loop value (
-'Brighouse' , '7'
-);
-insert into bus_loop value (
-'Main Street' , '10'
-);
-insert into bus_loop value (
-'Joyce' , '7'
-);
-insert into bus_loop value (
-'Marpole' , '10'
-);
 
-drop table sky_train;
 create table sky_train
     (
         junctionName char(20) not null,
         primary key(junctionName),
         foreign key (junctionName) references junction ON DELETE CASCADE
     );
-insert into sky_train value (
-'Metrotown'
-);
-insert into sky_train value (
-'Waterfront'
-);
-insert into sky_train value (
-'King George'
-);
-insert into sky_train value (
-'Joyce'
-);
-insert into sky_train value (
-'Brighouse'
-);
+grant select on sky_train to public;
 
-drop table bike_garage;
-create table bike_garage
-    (
-        junctionName char(20) not null,
-        garageId char(5) not null,
-        num_bikes int not null,
-        primary key(garageId),
-        foreign key(junctionName) references junction
-    );
-insert into hosts_a values (
-    'Joyce', 'JoyceBike', '25'
-);
-insert into hosts_a values (
-    'Main Street', 'MainStreetBike', '30'
-);
-insert into hosts_a values (
-    'KingGeorge', 'KingGeorgeBike', '40'
-);
-insert into hosts_a values (
-    'Bridgeport', 'BridgeportBike', '20'
-);
-insert into hosts_a values (
-    'Commercial', 'CommercialBike', '50'
-);
-
-drop table customer;
-create table customer
-    (
-        customerID char(20) not null unique,
-        customerName char(20) not null,
-        stopId char(5),
-        primary key(customerID),
-        foreign key(stopID) references stopp
-    );
-insert into customer values (
-    '1', 'Danny', '100'
-);
-insert into customer values (
-    '2', 'Cartier', '156'
-);
-insert into customer values (
-    '3', 'Ronald', '126'
-);
-insert into customer values (
-    '8', 'Another Cartier', '186'
-);
-insert into customer values (
-    '89', 'Another Ronald', '200'
-);
-
-drop table stopp;
 create table stopp
     (
         junctionName char(20),
-        stopId char(5) not null,
+        stopId char(20) not null,
         location char(20) not null,
-        direction char(5),
+        direction char(20),
         primary key(stopId),
         foreign key(junctionName) references junction ON DELETE CASCADE
     );
+grant select on stopp to public;
+
+create table customer
+    (
+        customerID char(20),
+        customerName char(20) not null,
+        stopId char(20),
+        primary key(customerID),
+        foreign key(stopID) references stopp
+    );
+grant select on customer to public;
+
+
+create table route1
+    (
+        routeId char(20) not null,
+        start_location char(20) not null,
+        end_location char(20) not null,
+        primary key(routeId)
+    );
+grant select on route1 to public;
+
+create table route2
+    (
+        start_location char(20) not null,
+        end_location char(20) not null,
+        num_stops int not null,
+        primary key(start_location, end_location),
+        foreign key(start_location) references route1,
+        foreign key(end_location) references route1
+    );
+grant select on route2 to public;
+
+          ------------------------ Relationship
+create table contains
+    (
+        stopId char(20) not null,
+        routeId char(20) not null,
+        primary key(routeId, stopId),
+        foreign key (routeId) references route1,
+        foreign key (stopId) references stopp
+    );
+grant select on contains to public;
+
+
+
+create table vehicle
+    (
+        junctionName char(20) not null,
+        serialNumber char(20) not null,
+        routeId char(20),
+        status char(20) not null,
+        current_location char(20) not null,
+        numPassengers int,
+        primary key(serialNumber),
+        foreign key (junctionName) references junction ON DELETE SET NULL,
+        foreign key(routeID) references route1
+    );
+grant select on vehicle to public;
+
+create table bus1
+    (
+        serialNumber char(20) not null,
+        type char(20) not null,
+        primary key(serialNumber),
+        foreign key(serialNumber) references vehicle
+    );
+grant select on bus1 to public;
+
+create table driver
+    (
+        employeeID char(20) not null,
+        driverName char(20) not null,
+        serialNumber char(20),
+        primary key(employeeID),
+        foreign key(serialNumber) references bus1
+    );
+grant select on driver to public;
+
+create table bus2
+    (
+        type char(20) not null,
+        max_capacity int not null,
+        primary key(type),
+        foreign key(type) references bus1
+    );
+grant select on bus2 to public;
+    
+
+create table skytrain
+    (
+        serialNumber char(20) not null,
+        line char(20) not null,
+        primary key(serialNumber),
+        foreign key(serialNumber) references vehicle
+    );
+grant select on skytrain to public;
+
+
+insert into junction values (
+'Waterfront' , 'Vancouver','1', 'WaterfrontBike'
+);
+insert into junction values (
+'Joyce' , 'Vancouver','1', 'JoyceBike'
+);
+insert into junction values (
+'Main Street' , 'Vancouver','1', 'MainStreetBike'
+);
+insert into junction values (
+'Commercial' , 'Vancouver', '1', 'CommercialBike'
+);
+insert into junction values (
+'KingGeorge' , 'Surrey','1', 'KingGeorgeBike'
+);
+insert into junction values (
+'Metrotown' , 'Burnaby','1', NULL
+);
+insert into junction values (
+'SFU' , 'Burnaby','0', NULL
+);
+insert into junction values (
+'Marine Drive' , 'Vancouver','0', NULL
+);
+
+insert into bike_garage values (
+   'Joyce', 'JoyceBike', 25
+);
+insert into bike_garage values (
+    'Main Street','MainStreetBike', 30
+);
+insert into bike_garage values (
+    'KingGeorge','KingGeorgeBike', 40
+);
+insert into bike_garage values (
+   'Waterfront','WaterfrontBike', 20
+);
+insert into bike_garage values (
+    'Commercial' ,'CommercialBike', 50
+);
+
+
+insert into bus_loop values (
+'KingGeorge' , 4
+);
+insert into bus_loop values (
+'Commercial', 7
+);
+insert into bus_loop values (
+'Main Street' , 10
+);
+insert into bus_loop values (
+'Joyce' , 7
+);
+insert into bus_loop values (
+'Waterfront' , 10
+);
+
+insert into sky_train values (
+'Main Street'
+);
+insert into sky_train values (
+'Waterfront'
+);
+insert into sky_train values (
+'King George'
+);
+insert into sky_train values (
+'Joyce'
+);
+insert into sky_train values (
+'Commercial'
+);
+
+ 
 insert into stopp values (
     'Joyce', '79', 'Vancouver', 'West'
 );
@@ -152,15 +251,24 @@ insert into stopp values (
     'SFU', '999', 'Burnaby', 'South'
 );
 
-drop table contains;          ------------------------ Relationship
-create table contains
-    (
-        stopId char(5) not null,
-        routeId char(5) not null,
-        primary key(routeId, stopId),
-        foreign key (routeId) references routee ON DELETE CASCADE,
-        foreign key (stopId) references stopp ON DELETE CASCADE
-    );
+
+insert into customer values (
+    '79', 'Danny', '100'
+);
+insert into customer values (
+    '90', 'Cartier', '156'
+);
+insert into customer values (
+    '345', 'Ronald', '126'
+);
+insert into customer values (
+    '12', 'Another Cartier', '186'
+);
+insert into customer values (
+    '999', 'Another Ronald', '200'
+);
+
+
 
 insert into contains values (
     '79', '1'
@@ -178,52 +286,47 @@ insert into contains values (
     '999', '5'
 );
 
-drop table routee;
-create table routee
-    (
-        routeId char(5) not null,
-        start char(20) not null,
-        end char(20) not null,
-        primary key(routeId)
-    );
 
-insert into routee values (
+insert into route1 values (
     '1', 'Joyce', 'UBC'
 );
-insert into routee values (
+insert into route1 values (
     '2', 'UBC', 'Joyce'
 );
-insert into routee values (
+insert into route1 values (
     '3', 'Metrotown', 'Marine Drive'
 );
-insert into routee values (
+insert into route1 values (
     '4', 'Metrotown', 'Brentwood'
 );
-insert into routee values (
+insert into route1 values (
     '5', 'SFU', 'Metrotown'
 );
 
-drop table vehicle;
-create table vehicle
-    (
-        junctionName char(20) not null,
-        serialNumber char(20) not null,
-        routeId char(5),
-        status char(20) not null,
-        current_location char(20) not null,
-        numPassengers int,
-        primary key(serialNumber),
-        foreign key (junctionName) references junction ON DELETE SET NULL,
-        foreign key(routeID) references routee
-    );
+insert into route2 values (
+    'Joyce', 'UBC', 20
+);
+insert into route2 values (
+    'UBC', 'Joyce', 20
+);
+insert into route2 values (
+    'Metrotown', 'Marine Drive', 15
+);
+insert into route2 values (
+    'Metrotown', 'Brentwood', 16
+);
+insert into route2 values (
+    'SFU', 'Metrotown', 18
+);
+
 insert into vehicle values (
     'Joyce', 'v1', '1', 'Running', 'Vancouver', 30
 );
 insert into vehicle values (
-    'UBC', 'v2', '2', 'Running', 'Vancouver', 30
+    'Joyce', 'v2', '2', 'Running', 'Vancouver', 30
 );
 insert into vehicle values (
-    'Metrotown', 'v3', 'NULL', 'Broken', 'Burnaby', 'NULL'
+    'Commercial', 'v3', 'NULL', 'Broken', 'Burnaby', 0
 );
 insert into vehicle values (
     'Metrotown', 'v4', '4', 'Running', 'Burnaby', 30
@@ -232,40 +335,38 @@ insert into vehicle values (
     'SFU', 'v5', '5', 'Running', 'Burnaby', 30
 );
 
-drop table bus;
-create table bus
-    (
-        serialNumber char(20) not null,
-        employeeID char(20) not null,
-        type char(20) not null,
-        primary key(serialNumber),
-        foreign key(serialNumber) references vehicle,
-        foreign key(employeeID) references driver
-    );
-insert into bus values (
-    'v1', 'e4', 'Rapid'
+insert into bus1 values (
+    'v1', 'Rapid'
 );
-insert into bus values (
-    'v2', 'e8', 'Express'
+insert into bus1 values (
+    'v2','Rapid'
 );
-insert into bus values (
-    'v3', 'e99', 'Regular'
+insert into bus1 values (
+    'v3', 'Regular'
 );
-insert into bus values (
-    'v4', 'e34', 'Regular'
+insert into bus1 values (
+    'v4','Regular'
 );
-insert into bus values (
-    'v5', 'e0', 'Regular'
+insert into bus1 values (
+    'v5','Regular'
 );
 
-drop table skytrain;
-create table skytrain
-    (
-        serialNumber char(20) not null,
-        line char(20) not null,
-        primary key(serialNumber),
-        foreign key(serialNumber) references vehicle
-    );
+insert into bus2 values (
+    'Rapid', 50
+);
+insert into bus2 values (
+    'Rapid', 50
+);
+insert into bus2 values (
+    'Regular', 30
+);
+insert into bus2 values (
+    'Regular', 30
+);
+insert into bus2 values (
+    'Regular', 30
+);
+
 insert into skytrain values (
     'v6', 'Canada'
 );
@@ -282,15 +383,6 @@ insert into skytrain values (
     'v10', 'Millenium'
 );
 
-drop table driver;
-create table driver
-    (
-        employeeID char(20) not null,
-        driverName char(20) not null,
-        serialNumber char(20),
-        primary key(employeeID),
-        foreign key(serialNumber) references bus
-    );
 insert into driver values (
     'e4', 'Danny', 'v1' 
 );
@@ -306,3 +398,20 @@ insert into driver values (
 insert into driver values (
     'e0', 'Tatum', 'v4' 
 );
+
+
+
+select * from junction;
+select * from bike_garage;
+select * from sky_train;
+select * from bus_loop;
+select * from stopp;
+select * from customer;
+select * from contains;
+select * from route1;
+select * from route2;
+select * from vehicle;
+select * from bus1;
+select * from bus2;
+select * from skytrain;
+select * from driver;
