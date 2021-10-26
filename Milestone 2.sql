@@ -1,6 +1,6 @@
 drop table junction;
 drop table bus_loop;
-drop table sky_train;
+drop table skytrain_station;
 drop table bike_garage;
 drop table customer;
 drop table stopp;
@@ -44,7 +44,7 @@ create table bus_loop
 grant select on bus_loop to public;
 
 
-create table sky_train
+create table skytrain_station
     (
         junctionName char(20) not null,
         primary key(junctionName),
@@ -218,19 +218,19 @@ insert into bus_loop values (
 'Waterfront' , 10
 );
 
-insert into sky_train values (
+insert into skytrain_station values (
 'Main Street'
 );
-insert into sky_train values (
+insert into skytrain_station values (
 'Waterfront'
 );
-insert into sky_train values (
+insert into skytrain_station values (
 'King George'
 );
-insert into sky_train values (
+insert into skytrain_station values (
 'Joyce'
 );
-insert into sky_train values (
+insert into skytrain_station values (
 'Commercial'
 );
 
